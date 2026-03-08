@@ -44,22 +44,20 @@ module spi_peripheral(
         if (!rst_n) begin
             transaction_ready <= 1'b0;
             buffer <= {16{1'b0}};
-            bit_count <= {5{1'b0}};
+            bit_count <= 0;
+        end else if (ncs_posedge) begin
+                transaction_ready <= 1'b1;
+                bit_count <= 0;
+        end else if (transaction_processed) begin
+                // Clear ready flag once processed
+                transaction_ready <= 1'b0;
+            
         end else if (ncs_sync2 == 1'b0) begin
             if(~sclk_sync2 & sclk_sync1) begin
                 buffer <= {buffer[14:0], copi_sync2}; 
                 bit_count <= bit_count + 1;
             end
-        end else begin
-            // When nCS goes high (transaction ends), validate the complete transaction
-            if (ncs_posedge) begin
-                transaction_ready <= 1'b1;
-                bit_count <= 0;
-            end else if (transaction_processed) begin
-                // Clear ready flag once processed
-                transaction_ready <= 1'b0;
-            end
-        end
+        end 
     end
 
     // Update registers only after the complete transaction has finished and been validated
