@@ -25,6 +25,8 @@ module tt_um_uwasic_onboarding_andy_duong (
   wire [7:0] pwm_duty_cycle;
 
   spi_peripheral spi_peripheral_inst (
+    .clk(clk),
+    .rst_n(rst_n),
     .copi(ui_in[1]),
     .ncs(ui_in[2]),
     .sclk(ui_in[0]),
