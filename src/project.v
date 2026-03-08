@@ -47,7 +47,7 @@ module tt_um_uwasic_onboarding_andy_duong (
   ui_in[2] //ncs
   ui_in[0] //sclk
 
-  always @(posedge ui_in[0]) begin
+  always @(posedge clk) begin
 
   end
 
