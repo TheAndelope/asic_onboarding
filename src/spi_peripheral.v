@@ -28,7 +28,7 @@ module spi_peripheral(
 
     wire ncs_posedge = ~ncs_sync2 & ncs_sync1;
 
-    //dff synchronizers
+    // dff synchronizers
     always @(posedge clk) begin
         sclk_sync1 <= sclk;
         sclk_sync2 <= sclk_sync1;
@@ -39,20 +39,20 @@ module spi_peripheral(
         ncs_sync1 <= ncs;
         ncs_sync2 <= ncs_sync1;
     end
-
+    
+    // serial data receiving logic
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+        if (!rst_n) begin // reset block
             transaction_ready <= 1'b0;
             buffer <= {16{1'b0}};
             bit_count <= 0;
-        end else if (ncs_posedge) begin
+          end else if (ncs_posedge) begin // start-up block (transaction begins)
                 transaction_ready <= 1'b1;
                 bit_count <= 0;
-        end else if (transaction_processed) begin
+              end else if (transaction_processed) begin // transaction has ended
                 transaction_ready <= 1'b0;
-            
-        end else if (ncs_sync2 == 1'b0) begin
-            if(~sclk_sync2 & sclk_sync1) begin
+        end else if (ncs_sync2 == 1'b0) begin // if sending data
+            if(~sclk_sync2 & sclk_sync1) begin // if sclk is rising
                 buffer <= {buffer[14:0], copi_sync2}; 
                 bit_count <= bit_count + 1;
             end
@@ -61,7 +61,7 @@ module spi_peripheral(
 
     // Update registers only after the complete transaction has finished and been validated
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+        if (!rst_n) begin // reset block
             en_reg_out_7_0 <= {8{1'b0}};
             en_reg_out_15_8 <= {8{1'b0}};
             en_reg_pwm_7_0 <= {8{1'b0}};

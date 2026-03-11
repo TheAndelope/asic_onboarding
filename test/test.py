@@ -190,7 +190,8 @@ async def test_pwm_freq(dut):
             break
     else:
         assert False, f"Timeout syncing for value {i}"
-
+    
+    # measure falling/rising edge
     pwm1 = 0
     pwm2 = 0
     t_falling = 0
@@ -260,6 +261,8 @@ async def test_pwm_duty(dut):
         await ClockCycles(dut.clk, 3000)
         assert int(dut.uo_out.value[0]) == 1
     
+
+    # test various different pwm duty cycles
     tests = [187, 215, 128, 1]
     for i in tests:
         await send_spi_transaction(dut, 1, 0x04, i)  # Write transaction
