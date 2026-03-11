@@ -27,16 +27,6 @@ module spi_peripheral(
 
     // dff synchronizers
     always @(posedge clk) begin
-        if (!rst_n) begin
-          sclk_sync1 <= 0;
-          sclk_sync2 <= 0;
-
-          copi_sync1 <= 0;
-          copi_sync2 <= 0;
-
-          ncs_sync1  <= 1;
-          ncs_sync2  <= 1;
-        end else begin
           sclk_sync1 <= sclk;
           sclk_sync2 <= sclk_sync1;
 
@@ -48,10 +38,10 @@ module spi_peripheral(
         end
     end
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             buffer <= {16{1'b0}};
-            bit_count <= 1'b0;
+            bit_count <= 0;
             en_reg_out_7_0 <= {8{1'b0}};
             en_reg_out_15_8 <= {8{1'b0}};
             en_reg_pwm_7_0 <= {8{1'b0}};
@@ -71,7 +61,7 @@ module spi_peripheral(
                 bit_count <= 0;
             end else if (!ncs_sync2 && sclk_rising) begin
                 // sample COPI on rising SCLK
-                buffer    <= {buffer[14:0], copi_sync1};
+                buffer    <= {buffer[14:0], copi_sync2};
                 bit_count <= bit_count + 1;
             end
         end
