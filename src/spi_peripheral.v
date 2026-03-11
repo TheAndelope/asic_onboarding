@@ -35,7 +35,6 @@ module spi_peripheral(
 
           ncs_sync1 <= ncs;
           ncs_sync2 <= ncs_sync1;
-        end
     end
 
     always @(posedge clk) begin
