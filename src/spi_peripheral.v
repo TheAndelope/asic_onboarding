@@ -49,12 +49,11 @@ module spi_peripheral(
                 transaction_ready <= 1'b1;
                 bit_count <= 0;
         end else if (transaction_processed) begin
-                // Clear ready flag once processed
                 transaction_ready <= 1'b0;
             
         end else if (ncs_sync2 == 1'b0) begin
             if(~sclk_sync2 & sclk_sync1) begin
-                buffer <= {buffer[14:0], copi_sync2}; 
+                buffer <= {buffer[14:0], copi_sync1}; 
                 bit_count <= bit_count + 1;
             end
         end 
@@ -77,6 +76,7 @@ module spi_peripheral(
                 7'h2: en_reg_pwm_7_0 <= buffer[7:0];
                 7'h3: en_reg_pwm_15_8 <= buffer[7:0];
                 7'h4: pwm_duty_cycle <= buffer[7:0];
+                default: ;
             endcase
             // Set the processed flag
             transaction_processed <= 1'b1;
