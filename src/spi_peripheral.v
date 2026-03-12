@@ -12,7 +12,6 @@ module spi_peripheral(
 );
 
     reg transaction_ready;
-    reg transaction_processed;
 
     reg sclk_sync1;
     reg sclk_sync2;
@@ -30,6 +29,14 @@ module spi_peripheral(
 
     // dff synchronizers
     always @(posedge clk) begin
+      if (!rst_n) begin
+        sclk_sync1 <= 0;
+        sclk_sync2 <= 0;
+        copi_sync1 <= 0;
+        copi_sync2 <= 0;
+        ncs_sync1  <= 1;
+        ncs_sync2  <= 1;
+      end else begin
         sclk_sync1 <= sclk;
         sclk_sync2 <= sclk_sync1;
 
@@ -38,6 +45,7 @@ module spi_peripheral(
 
         ncs_sync1 <= ncs;
         ncs_sync2 <= ncs_sync1;
+      end
     end
     
     // serial data receiving logic
@@ -46,11 +54,11 @@ module spi_peripheral(
             transaction_ready <= 1'b0;
             buffer <= {16{1'b0}};
             bit_count <= 0;
-          end else if (ncs_posedge) begin // start-up block (transaction begins)
-                transaction_ready <= 1'b1;
-                bit_count <= 0;
-              end else if (transaction_processed) begin // transaction has ended
-                transaction_ready <= 1'b0;
+        end else if (transaction_ready) begin
+            transaction_ready <= 1'b0;
+        end else if (ncs_posedge && bit_count == 16) begin // end block (transaction ends)
+            transaction_ready <= 1'b1;
+            bit_count <= 0;
         end else if (ncs_sync2 == 1'b0) begin // if sending data
             if(~sclk_sync2 & sclk_sync1) begin // if sclk is rising
                 buffer <= {buffer[14:0], copi_sync2}; 
@@ -67,8 +75,7 @@ module spi_peripheral(
             en_reg_pwm_7_0 <= {8{1'b0}};
             en_reg_pwm_15_8 <= {8{1'b0}};
             pwm_duty_cycle <= {8{1'b0}};
-            transaction_processed <= 1'b0;
-        end else if (transaction_ready && !transaction_processed && buffer[15]) begin
+        end else if (transaction_ready && buffer[15]) begin
             // Transaction is ready and not yet processed
             case(buffer[14:8]) 
                 7'h0: en_reg_out_7_0 <= buffer[7:0];
@@ -78,12 +85,6 @@ module spi_peripheral(
                 7'h4: pwm_duty_cycle <= buffer[7:0];
                 default: ;
             endcase
-            // Set the processed flag
-            transaction_processed <= 1'b1;
-        end else if (!transaction_ready && transaction_processed) begin
-            // Reset processed flag when ready flag is cleared
-            transaction_processed <= 1'b0;
         end
-    end
-
+      end
 endmodule
