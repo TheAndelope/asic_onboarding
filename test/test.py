@@ -189,7 +189,7 @@ async def test_pwm_freq(dut):
         if pwm2 == 1 and pwm1 == 0:
             break
     else:
-        assert False, f"Timeout syncing for value {i}"
+        assert False, f"Timeout syncing for value {_}"
     
     # measure falling/rising edge
     pwm1 = 0
@@ -278,7 +278,7 @@ async def test_pwm_duty(dut):
             if pwm2 == 1 and pwm1 == 0:
                 break
         else:
-            assert False, f"Timeout syncing for value {i}"
+            assert False, f"Timeout syncing for value {_}"
 
         # measure falling/rising edge
         pwm1 = 0
