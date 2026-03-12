@@ -23,7 +23,7 @@ module spi_peripheral(
     reg ncs_sync2;
 
     reg [15:0] buffer;
-    reg [5:0] bit_count;
+    reg [4:0] bit_count;
 
     wire ncs_posedge = ~ncs_sync2 & ncs_sync1;
 
@@ -59,7 +59,7 @@ module spi_peripheral(
         end else if (ncs_posedge && bit_count == 5'd16) begin // end block (transaction ends)
             transaction_ready <= 1'b1;
             bit_count <= 0;
-        end else if (ncs_sync2 == 1'b0) begin // if sending data
+        end else if (ncs_sync2 == 1'b0 && bit_count != 5'd16') begin // if sending data
             if(~sclk_sync2 & sclk_sync1) begin // if sclk is rising
                 buffer <= {buffer[14:0], copi_sync2}; 
                 bit_count <= bit_count + 1;
