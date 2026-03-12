@@ -28,7 +28,7 @@ module spi_peripheral(
     wire ncs_posedge = ~ncs_sync2 & ncs_sync1;
 
     // dff synchronizers
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
       if (!rst_n) begin
         sclk_sync1 <= 0;
         sclk_sync2 <= 0;
